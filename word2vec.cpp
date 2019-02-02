@@ -25,10 +25,6 @@ int main(int argc, char* argv[]) {
     while(std::getline(file, line)) {
         std::vector<std::string> result = splits(line, " ");
         for (int i = 0; i < result.size(); ++i) {
-            if (not corpus.count(result[i])) {
-                corpus[result[i]] = count;
-            }
-
             std::vector<std::string> sample;
             for (int di = -skipgram; di <= skipgram; ++di) {
                 if (di == 0) continue; // Skip the word itself.
@@ -38,7 +34,10 @@ int main(int argc, char* argv[]) {
                     sample.emplace_back(result[idx]);
                 }
             }
-            data[count++] = (sample);
+            data[count] = sample;
+            if (not corpus.count(result[i])) {
+                corpus[result[i]] = count++;
+            }
         }
     }
 

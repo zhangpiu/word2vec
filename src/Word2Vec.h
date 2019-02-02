@@ -28,13 +28,16 @@ public:
     void train(const std::unordered_map<int, std::vector<int>>& data) {
         initWeights();
 
-        for(const auto& kv : data) {
-            float loss = forward(kv.second, kv.first);
-            std::cout << "Loss: " << loss << std::endl;
+        for (int i = 0; i < 10000; ++i) {
+            for(const auto& kv : data) {
+                float loss = forwardAndBackward(kv.second, kv.first);
+                std::cout << "Loss: " << loss << std::endl;
+            }
         }
     }
 
-    float forward(const std::vector<int>& input, int target) {
+    float forwardAndBackward(const std::vector<int>& input, size_t target) {
+        // 1. Forward
         Matrix hidden(embeddingSize, 1);
         for (int idx : input) {
             for (size_t i = 0; i < hidden.rows(); ++i) {
@@ -46,12 +49,26 @@ public:
         Matrix u = W2.T() * hidden;
         Matrix y = softmax(u);
         float loss = -log(y(target, 0));
+
+        // 2. Backward
+        Matrix delta2 = y; // V by 1
+        delta2(target, 0) -= 1.0f;
+
+        Matrix w2Grad = hidden * delta2.T(); // N by V
+        Matrix delta1 = (W2 * delta2); // N by 1;
+        Matrix w1Grad(W1.rows(), W1.cols());
+        for (int hot : input) {
+            Matrix x = onehot(hot, vocabularySize);
+            w1Grad += (delta1 * x.T()).T() * (1. / input.size());
+        }
+
+        float yita = 0.001;
+        w1Grad *= yita; W1 -= w1Grad;
+        w2Grad *= yita; W2 -= w2Grad;
+
         return loss;
     }
 
-    void backward() {
-
-    }
 
     void initWeights() {
         std::mt19937 engine{std::random_device()()};

@@ -33,4 +33,10 @@ static Matrix softmax(const Matrix& input) {
 }
 
 
+static Matrix onehot(size_t hot, size_t dimension) {
+    Matrix result(dimension, 1);
+    result(hot, 0) = 1.0f;
+    return result;
+}
+
 #endif //WORD2VEC_SOFTMAX_H

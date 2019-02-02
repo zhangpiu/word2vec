@@ -70,12 +70,24 @@ public:
         }
     }
 
+    Matrix& operator *= (float value) {
+        for (size_t i = 0; i < data.size(); ++i) {
+            data[i] *= value;
+        }
+    }
+
+    Matrix operator * (float value) {
+        Matrix result(*this);
+        result *= value;
+        return result;
+    }
+
     Matrix operator * (const Matrix& rhs) const {
         assert(this->cols() == rhs.rows());
         Matrix result(this->rows(), rhs.cols());
         for (size_t i = 0; i < result.rows(); ++i) {
             for (size_t j = 0; j < result.cols(); ++j) {
-                for (size_t k = 0; k < result.cols(); ++k) {
+                for (size_t k = 0; k < this->cols(); ++k) {
                     result(i, j) += data[i][k] * rhs.data[k][j];
                 }
             }

@@ -70,6 +70,14 @@ public:
         return *this;
     }
 
+    Vector& operator *= (float value) {
+        for (size_t i = 0; i < _data.size(); ++i) {
+            _data[i] *= value;
+        }
+
+        return *this;
+    }
+
     size_t length() const {
         return _data.size();
     }
