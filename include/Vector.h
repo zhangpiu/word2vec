@@ -56,8 +56,8 @@ public:
         }
     }
 
-    Vector operator - (const Vector& rhs) {
-        Vector result(rhs.length());
+    Vector operator - (const Vector& rhs) const {
+        Vector result(*this);
         result -= rhs;
         return result;
     }
@@ -76,6 +76,14 @@ public:
         }
 
         return *this;
+    }
+
+    float squaredNorm() const {
+        float value = 0.0f;
+        for (size_t i = 0; i < _data.size(); ++i) {
+            value += _data[i] * _data[i];
+        }
+        return value;
     }
 
     size_t length() const {

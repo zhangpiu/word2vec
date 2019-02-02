@@ -25,10 +25,10 @@ public:
      * Train a CBOW model.
      * @param data
      */
-    void train(const std::unordered_map<int, std::vector<int>>& data) {
+    void train(const std::unordered_map<int, std::vector<int>>& data, unsigned epochs) {
         initWeights();
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < epochs; ++i) {
             for(const auto& kv : data) {
                 float loss = forwardAndBackward(kv.second, kv.first);
                 std::cout << "Loss: " << loss << std::endl;

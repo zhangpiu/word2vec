@@ -6,10 +6,10 @@
 #ifndef WORD2VEC_MATRIX_H
 #define WORD2VEC_MATRIX_H
 
-#include <cassert>
 #include <vector>
 #include <iostream>
 #include "Vector.h"
+#include "BetterAssert.h"
 
 class Matrix {
 public:
@@ -37,7 +37,8 @@ public:
     }
 
     Matrix& operator += (const Matrix& rhs) {
-        assert(this->rows() == rhs.rows() and this->cols() == rhs.cols());
+        BETTER_ASSERT_FMT(this->rows() == rhs.rows() and this->cols() == rhs.cols()
+        , "lhs' size(%zd, %zd) doesn't match rhs' size(%zd, %zd)", this->rows(), this->cols(), rhs.rows(), rhs.cols());
         for (size_t i = 0; i < this->rows(); ++i) {
             data[i] += rhs.data[i];
         }
@@ -51,7 +52,8 @@ public:
     }
 
     Matrix& operator -= (const Matrix& rhs) {
-        assert(this->rows() == rhs.rows() and this->cols() == rhs.cols());
+        BETTER_ASSERT_FMT(this->rows() == rhs.rows() and this->cols() == rhs.cols()
+                , "lhs' size(%zd, %zd) doesn't match rhs' size(%zd, %zd)", this->rows(), this->cols(), rhs.rows(), rhs.cols());
         for (size_t i = 0; i < this->rows(); ++i) {
             data[i] -= rhs.data[i];
         }
@@ -83,7 +85,7 @@ public:
     }
 
     Matrix operator * (const Matrix& rhs) const {
-        assert(this->cols() == rhs.rows());
+        BETTER_ASSERT_FMT(this->cols() == rhs.rows(), "lhs' cols(%zd) should be equal to rhs' rows(%zd)", this->cols(), rhs.rows());
         Matrix result(this->rows(), rhs.cols());
         for (size_t i = 0; i < result.rows(); ++i) {
             for (size_t j = 0; j < result.cols(); ++j) {
@@ -132,12 +134,14 @@ public:
     friend inline std::ostream& operator << (std::ostream& os, const Matrix& m) {
         os << "[";
         for(size_t i = 0; i < m.rows(); ++i) {
+            if (i) os << " ";
             os << "[";
             for (size_t j = 0; j < m.cols(); ++j) {
-                if (j) os << ", ";
+                if (j) os << ",";
                 os << m.data[i][j];
             }
-            os << "]\n";
+            os << "]";
+            if (i + 1 < m.rows()) os << "\n";
         }
         os << "]\n";
     }
