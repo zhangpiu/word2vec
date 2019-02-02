@@ -25,9 +25,9 @@ int main(int argc, char* argv[]) {
                 ("E,embedding", "Embedded vectors file.", cxxopts::value<std::string>()->default_value("../resources/embedding.txt"))
                 ("S,similarity", "Result of similarity.", cxxopts::value<std::string>()->default_value("../resources/similarity.txt"))
                 ("D,delimiter", "Delimiter among words in corpus file.", cxxopts::value<std::string>()->default_value(" "))
-                ("d,dimension", "Dimension of the embedded vector.", cxxopts::value<unsigned>()->default_value("10"))
+                ("d,dimension", "Dimension of the embedded vector.", cxxopts::value<unsigned>()->default_value("5"))
                 ("s,size-context-words", "Size of context words.", cxxopts::value<int>()->default_value("1"))
-                ("e,epochs", "Epochs", cxxopts::value<unsigned>()->default_value("5000"))
+                ("e,epochs", "Epochs", cxxopts::value<unsigned>()->default_value("10000"))
                 ("t,topK", "Top K to recall.", cxxopts::value<unsigned>()->default_value("3"))
                 ("h,help", "Print help");
         try {
@@ -96,12 +96,14 @@ int main(int argc, char* argv[]) {
                     contextWords.emplace_back(result[idx]);
                 }
             }
-            data.emplace_back(count, contextWords);
+
             if (not vocabulary.count(result[i])) {
                 fsVocabulary << count << ": " << result[i] << "\n";
                 id2vocabulary[count] = result[i];
                 vocabulary[result[i]] = count++;
             }
+
+            data.emplace_back(vocabulary[result[i]], contextWords);
         }
     }
     fsCorpus.close();

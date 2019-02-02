@@ -78,6 +78,15 @@ public:
         return *this;
     }
 
+    Vector normalize() const {
+        Vector result(*this);
+        float norm = std::sqrt(result.squaredNorm());
+        for (size_t i = 0; i < result.length(); ++i) {
+            result[i] /= norm;
+        }
+        return result;
+    }
+
     float squaredNorm() const {
         float value = 0.0f;
         for (size_t i = 0; i < _data.size(); ++i) {
