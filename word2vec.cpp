@@ -84,5 +84,7 @@ int main(int argc, char* argv[]) {
 
     word2Vec.train(input);
 
+    std::cout << word2Vec.getW1();
+
     return 0;
 }

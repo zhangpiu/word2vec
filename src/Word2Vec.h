@@ -28,7 +28,7 @@ public:
     void train(const std::unordered_map<int, std::vector<int>>& data) {
         initWeights();
 
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             for(const auto& kv : data) {
                 float loss = forwardAndBackward(kv.second, kv.first);
                 std::cout << "Loss: " << loss << std::endl;
@@ -62,7 +62,7 @@ public:
             w1Grad += (delta1 * x.T()).T() * (1. / input.size());
         }
 
-        float yita = 0.001;
+        float yita = 0.01;
         w1Grad *= yita; W1 -= w1Grad;
         w2Grad *= yita; W2 -= w2Grad;
 

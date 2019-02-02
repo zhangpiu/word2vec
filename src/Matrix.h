@@ -130,13 +130,16 @@ public:
     }
 
     friend inline std::ostream& operator << (std::ostream& os, const Matrix& m) {
+        os << "[";
         for(size_t i = 0; i < m.rows(); ++i) {
+            os << "[";
             for (size_t j = 0; j < m.cols(); ++j) {
-                if (j) os << " ";
+                if (j) os << ", ";
                 os << m.data[i][j];
             }
-            os << "\n";
+            os << "]\n";
         }
+        os << "]\n";
     }
 
 private:
