@@ -9,7 +9,7 @@
 #include <vector>
 #include <iostream>
 #include "Vector.h"
-#include "BetterAssert.h"
+
 
 class Matrix {
 public:
@@ -46,7 +46,7 @@ public:
     }
 
     Matrix operator + (const Matrix& rhs) const {
-        Matrix result(rhs.rows(), rhs.cols());
+        Matrix result(*this);
         result += rhs;
         return result;
     }
@@ -61,7 +61,7 @@ public:
     }
 
     Matrix operator - (const Matrix& rhs) const {
-        Matrix result(rhs.rows(), rhs.cols());
+        Matrix result(*this);
         result -= rhs;
         return result;
     }
@@ -94,7 +94,6 @@ public:
                 }
             }
         }
-
         return result;
     }
 
@@ -121,6 +120,7 @@ public:
     }
 
     size_t cols() const {
+        if (data.empty()) return 0;
         return data.front().length();
     }
 

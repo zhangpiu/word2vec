@@ -13,7 +13,7 @@
 
 
 static Matrix softmax(const Matrix& input) {
-    assert(input.rows() == 1 or input.cols() == 1);
+    BETTER_ASSERT(input.rows() == 1 or input.cols() == 1);
     Matrix output(input.rows(), input.cols());
     float sum = 0.0;
     for (size_t i = 0; i < input.rows(); ++i) {
@@ -33,7 +33,7 @@ static Matrix softmax(const Matrix& input) {
 }
 
 
-static Matrix onehot(size_t hot, size_t dimension) {
+static Matrix onehot(size_t dimension, size_t hot) {
     Matrix result(dimension, 1);
     result(hot, 0) = 1.0f;
     return result;

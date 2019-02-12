@@ -25,18 +25,19 @@ public:
      * Train a CBOW model.
      * @param data
      */
-    void train(const std::unordered_map<int, std::vector<int>>& data, unsigned epochs) {
+    void train(const std::unordered_map<int, std::vector<int>>& data, unsigned epochs, float lr) {
         initWeights();
 
         for (int i = 0; i < epochs; ++i) {
+            int count = 0;
             for(const auto& kv : data) {
-                float loss = forwardAndBackward(kv.second, kv.first);
-                std::cout << "Loss: " << loss << std::endl;
+                float loss = forwardAndBackward(kv.second, kv.first, lr);
+                fprintf(stdout, "Epoch: [%d][%d/%zd]\tLoss: %.6f\n", i, count++, data.size(), loss);
             }
         }
     }
 
-    float forwardAndBackward(const std::vector<int>& input, size_t target) {
+    float forwardAndBackward(const std::vector<int>& input, size_t target, float lr) {
         // 1. Forward
         Matrix hidden(embeddingSize, 1);
         for (int idx : input) {
@@ -46,25 +47,26 @@ public:
         }
         hidden /= input.size();
 
-        Matrix u = W2.T() * hidden;
+        Matrix u = W2.T() * hidden; // (N by V)^T * (N by 1) -> (V by 1)
         Matrix y = softmax(u);
-        float loss = -log(y(target, 0));
+        float loss = -std::log(y(target, 0));
 
         // 2. Backward
         Matrix delta2 = y; // V by 1
-        delta2(target, 0) -= 1.0f;
+        delta2(target, 0) -= 1.0f; // delta2 = o_t - y_t
 
         Matrix w2Grad = hidden * delta2.T(); // N by V
         Matrix delta1 = (W2 * delta2); // N by 1;
         Matrix w1Grad(W1.rows(), W1.cols());
+        Matrix x(vocabularySize, 1);
         for (int hot : input) {
-            Matrix x = onehot(hot, vocabularySize);
-            w1Grad += (delta1 * x.T()).T() * (1. / input.size());
+            x += onehot(vocabularySize, hot);
         }
+        x *= 1. / input.size();
+        w1Grad += (x * delta1.T());
 
-        float yita = 0.01;
-        w1Grad *= yita; W1 -= w1Grad;
-        w2Grad *= yita; W2 -= w2Grad;
+        w1Grad *= lr; W1 -= w1Grad;
+        w2Grad *= lr; W2 -= w2Grad;
 
         return loss;
     }
@@ -88,11 +90,6 @@ public:
     const Matrix& getW1() const {
         return W1;
     }
-
-    const Matrix& getW2() const {
-        return W2;
-    }
-
 
 private:
     size_t vocabularySize;

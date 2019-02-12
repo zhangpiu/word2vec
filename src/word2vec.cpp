@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
                 ("d,dimension", "Dimension of the embedded vector.", cxxopts::value<unsigned>()->default_value("5"))
                 ("s,size-context-words", "Size of context words.", cxxopts::value<int>()->default_value("1"))
                 ("e,epochs", "Epochs", cxxopts::value<unsigned>()->default_value("10000"))
+                ("l,lr", "Learning rate", cxxopts::value<float>()->default_value("0.01"))
                 ("t,topK", "Top K to recall.", cxxopts::value<unsigned>()->default_value("3"))
                 ("h,help", "Print help");
         try {
@@ -49,6 +50,7 @@ int main(int argc, char* argv[]) {
     const auto& contextSize = args["size-context-words"].as<int>();
     const auto& epochs = args["epochs"].as<unsigned>();
     const auto& topK = args["topK"].as<unsigned>();
+    const auto& lr = args["lr"].as<float>();
 
     std::ifstream fsCorpus(corpusFile);
     if (not fsCorpus.good()) {
@@ -75,7 +77,7 @@ int main(int argc, char* argv[]) {
 
     // Parse vocabulary and context words from the input corpus.
     std::vector<std::pair<int, std::vector<std::string>>> data;
-    std::unordered_map<std::string, int> vocabulary;
+    std::unordered_map<std::string, int> vocabulary2id;
     std::unordered_map<int, std::string> id2vocabulary;
     std::string line;
     int count = 0;
@@ -97,13 +99,13 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            if (not vocabulary.count(result[i])) {
+            if (not vocabulary2id.count(result[i])) {
                 fsVocabulary << count << ": " << result[i] << "\n";
                 id2vocabulary[count] = result[i];
-                vocabulary[result[i]] = count++;
+                vocabulary2id[result[i]] = count++;
             }
 
-            data.emplace_back(vocabulary[result[i]], contextWords);
+            data.emplace_back(vocabulary2id[result[i]], contextWords);
         }
     }
     fsCorpus.close();
@@ -121,17 +123,17 @@ int main(int argc, char* argv[]) {
     fsContextWords.close();
 
     // Train a CBOW model.
-    Word2Vec word2Vec(vocabulary.size(), dimension);
+    Word2Vec word2Vec(vocabulary2id.size(), dimension);
     std::unordered_map<int, std::vector<int>> input;
     for (const auto& p : data) {
         std::vector<int> indices;
         for (const auto& s : p.second) {
-            indices.push_back(vocabulary[s]);
+            indices.push_back(vocabulary2id[s]);
         }
         input[p.first] = indices;
     }
 
-    word2Vec.train(input, epochs);
+    word2Vec.train(input, epochs, lr);
     const Matrix& w = word2Vec.getW1();
     std::cout << w;
 

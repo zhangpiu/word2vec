@@ -8,7 +8,7 @@
 
 #include <vector>
 #include <cstdio>
-#include <cassert>
+#include "BetterAssert.h"
 
 
 class Vector {
@@ -37,20 +37,22 @@ public:
     }
 
     Vector& operator += (const Vector& rhs) {
-        assert(this->length() == rhs.length());
+        BETTER_ASSERT_FMT(this->length() == rhs.length()
+                , "lhs' length(%zd) doesn't match rhs' length(%zd)", this->length(), rhs.length());
         for (size_t i = 0; i < _data.size(); ++i) {
             _data[i] += rhs._data[i];
         }
     }
 
     Vector operator + (const Vector& rhs) {
-        Vector result(rhs.length());
+        Vector result(*this);
         result += rhs;
         return result;
     }
 
     Vector& operator -= (const Vector& rhs) {
-        assert(this->length() == rhs.length());
+        BETTER_ASSERT_FMT(this->length() == rhs.length()
+                , "lhs' length(%zd) doesn't match rhs' length(%zd)", this->length(), rhs.length());
         for (size_t i = 0; i < _data.size(); ++i) {
             _data[i] -= rhs._data[i];
         }
@@ -66,7 +68,6 @@ public:
         for (size_t i = 0; i < _data.size(); ++i) {
             _data[i] /= value;
         }
-
         return *this;
     }
 
@@ -74,17 +75,7 @@ public:
         for (size_t i = 0; i < _data.size(); ++i) {
             _data[i] *= value;
         }
-
         return *this;
-    }
-
-    Vector normalize() const {
-        Vector result(*this);
-        float norm = std::sqrt(result.squaredNorm());
-        for (size_t i = 0; i < result.length(); ++i) {
-            result[i] /= norm;
-        }
-        return result;
     }
 
     float squaredNorm() const {
