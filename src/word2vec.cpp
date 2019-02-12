@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 
     std::ofstream fsContextWords(contextWordsFile);
     for (auto& p : data) {
-        fsContextWords << p.first << ": ";
+        fsContextWords << id2vocabulary[p.first] << "(" << p.first << ")" << ": ";
         for (size_t i = 0; i < p.second.size(); ++i) {
             if (i) fsContextWords << " ";
             fsContextWords << p.second[i];
@@ -124,13 +124,13 @@ int main(int argc, char* argv[]) {
 
     // Train a CBOW model.
     Word2Vec word2Vec(vocabulary2id.size(), dimension);
-    std::unordered_map<int, std::vector<int>> input;
+    std::vector<std::pair<std::vector<int>, int>> input;
     for (const auto& p : data) {
         std::vector<int> indices;
         for (const auto& s : p.second) {
             indices.push_back(vocabulary2id[s]);
         }
-        input[p.first] = indices;
+        input.emplace_back(indices, p.first);
     }
 
     word2Vec.train(input, epochs, lr);
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
             dist.resize(topK);
         }
 
-        fsSimilarity << id2vocabulary[i] << "(" << i << ")\t";
+        fsSimilarity << id2vocabulary[i] << "(" << i << ") -> ";
         for (size_t k = 0; k < dist.size(); ++k) {
             if (k) fsSimilarity << " ";
             fsSimilarity << id2vocabulary[dist[k].first] << "(" << dist[k].first << "):" << dist[k].second;

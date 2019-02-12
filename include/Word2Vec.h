@@ -25,13 +25,14 @@ public:
      * Train a CBOW model.
      * @param data
      */
-    void train(const std::unordered_map<int, std::vector<int>>& data, unsigned epochs, float lr) {
+    void train(std::vector<std::pair<std::vector<int>, int>>& data, unsigned epochs, float lr) {
         initWeights();
 
         for (int i = 0; i < epochs; ++i) {
             int count = 0;
-            for(const auto& kv : data) {
-                float loss = forwardAndBackward(kv.second, kv.first, lr);
+            std::random_shuffle(data.begin(), data.end());
+            for(const auto& sample : data) {
+                float loss = forwardAndBackward(sample.first, sample.second, lr);
                 fprintf(stdout, "Epoch: [%d][%d/%zd]\tLoss: %.6f\n", i, count++, data.size(), loss);
             }
         }
